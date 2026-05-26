@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sandy Huang | 高端美學與珠寶設計顧問</title>
+    <!-- Google Fonts: Playfair Display for Serifs & Inter for Body -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-p1Cmjv+NDrmT3Pa0I5z0K0i1i5n+CsUeZ1sHpqjJbJrMe0TE0cCQ9MR5eNQ8nC3X7J+bc4tQ4dzHshfEoO2/2w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'pearl': '#FAF8F5',
+                        'ivory': '#F3ECE4',
+                        'champagne': '#D4AF37',
+                        'soft-gold': '#D0C4B4',
+                        'luxury-black': '#1A1A1A',
+                        'mint-glow': '#F3B7C1',
+                        'fog-white': '#E0DDDD',
+                        'dusty-rose': '#EAD0D4',
+                    },
+                    fontFamily: {
+                        'serif': ['"Playfair Display"', 'serif'],
+                        'sans': ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --gold-shimmer: linear-gradient(90deg, rgba(212,175,55,0) 0%, rgba(212,175,55,0.8) 50%, rgba(212,175,55,0) 100%);
+        }
+
+        body {
+            background-color: #FAF8F5;
+            color: #2D2926;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* 高端玻璃擬態 */
+        .glass-card {
+            background: rgba(243, 236, 228, 0.5);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(224, 221, 221, 0.4);
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(212, 175, 55, 0.4);
+            box-shadow: 0 20px 40px rgba(212, 175, 55, 0.05);
+            transform: translateY(-8px);
+        }
+
+        /* 柔焦光暈效果 */
+        .soft-bloom {
+            filter: blur(60px);
+            background: radial-gradient(circle, rgba(243, 183, 193, 0.12) 0%, rgba(255,255,255,0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* 金屬邊框掃光動畫 */
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .shimmer-btn::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--gold-shimmer);
+            transform: translateX(-100%);
+        }
+
+        .shimmer-btn:hover::after {
+            animation: shimmer 1.5s infinite;
+        }
+
+        /* 特製 Hero 按鈕：Mint Glow 效果 */
+        .hero-btn {
+            background: rgba(243, 236, 228, 0.6);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-btn:hover {
+            background: #F3B7C1; /* 柔和玫瑰粉光暈 */
+            box-shadow: 0 0 30px rgba(243, 183, 193, 0.6);
+            border-color: rgba(243, 183, 193, 1);
+            transform: scale(1.05);
+        }
+
+        /* 內容進場動畫預設 */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 客製化捲動條 */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #FAF8F5; }
+        ::-webkit-scrollbar-thumb { background: #D0C4B4; border-radius: 10px; }
+
+        #luxury-canvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .spotlight {
+            position: fixed;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(243, 183, 193, 0.05) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -1;
+            transform: translate(-50%, -50%);
+            transition: top 0.1s ease, left 0.1s ease;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased">
+
+    <canvas id="luxury-canvas"></canvas>
+    <div class="spotlight" id="spotlight"></div>
+
+    <nav class="fixed w-full z-50 top-0 left-0 transition-all duration-500 py-6 px-8 lg:px-20" id="navbar">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="text-2xl font-serif tracking-widest text-luxury-black font-bold">
+                SANDY <span class="font-light italic text-champagne">HUANG</span>
+            </div>
+            <div class="hidden md:flex space-x-12 text-sm tracking-[0.2em] uppercase font-medium">
+                <a href="#hero" class="hover:text-champagne transition-colors">首頁</a>
+                <a href="#about" class="hover:text-champagne transition-colors">關於 Sandy</a>
+                <a href="#services" class="hover:text-champagne transition-colors">精品服務</a>
+                <a href="#contact" class="hover:text-champagne transition-colors">預約諮詢</a>
+            </div>
+            <div class="md:hidden">
+                <!-- Mobile Menu Placeholder -->
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8h16M4 16h16"/></svg>
+            </div>
+        </div>
+    </nav>
+
+    <section id="hero" class="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+        <div class="soft-bloom absolute top-1/4 left-1/4"></div>
+        <div class="soft-bloom absolute bottom-1/4 right-1/4"></div>
+        
+        <div class="container mx-auto px-6 text-center z-10">
+            <p class="text-champagne tracking-[0.4em] uppercase text-xs mb-6 reveal">30 Years of Aesthetic Excellence</p>
+            <h1 class="font-serif text-5xl md:text-8xl text-luxury-black mb-8 leading-tight reveal">
+                Luxury is not fashion.<br>
+                <span class="italic font-light">It is identity.</span>
+            </h1>
+            <p class="text-gray-500 text-lg md:text-xl max-w-2xl mx-auto mb-12 font-light reveal tracking-wide">
+                精品服飾 × 珠寶設計。以美學建立信任，以設計傳遞價值，為您量身打造無可取代的奢華體驗。
+            </p>
+            
+            <div class="reveal">
+                <a href="#contact" class="hero-btn inline-block px-10 py-5 rounded-full text-sm tracking-[0.2em] uppercase font-semibold text-luxury-black group">
+                    <span class="group-hover:hidden">開始探索奢華</span>
+                    <span class="hidden group-hover:block transition-all">Status: Ready to Connect</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="py-32 bg-ivory">
+        <div class="container mx-auto px-6 lg:px-20">
+            <div class="grid lg:grid-cols-2 gap-20 items-center">
+                <div class="reveal relative">
+                    <div class="aspect-[4/5] bg-gray-200 rounded-sm overflow-hidden shadow-2xl">
+                        <!-- Placeholder for Sandy's high-end photo -->
+                        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1000" 
+                             alt="Sandy Huang" class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000"
+                             onerror="this.src='https://placehold.co/800x1000/F8F5F0/D4AF37?text=Sandy+Huang'">
+                    </div>
+                    <div class="absolute -bottom-10 -right-10 w-64 h-64 border border-champagne/30 -z-10"></div>
+                </div>
+                
+                <div class="reveal">
+                    <h2 class="font-serif text-4xl md:text-5xl text-luxury-black mb-8">
+                        關於 <span class="italic">黃 Sandy</span>
+                    </h2>
+                    <p class="text-champagne font-serif italic text-xl mb-6">「真正的奢華，是細節處的寧靜與氣度。」</p>
+                    <div class="space-y-6 text-gray-600 leading-relaxed font-light text-lg">
+                        <p>黃 Sandy 擁有超過 30 年精品服飾與高端珠寶產業經驗，是一位深耕高端美學、精品選品與珠寶設計顧問的資深專家。</p>
+                        <p>長期以來，她以敏銳的時尚嗅覺與對工藝的極致追求，為無數高端客戶打造專屬的個人風格。從國際採購到客製化珠寶規劃，Sandy 相信美學不僅是視覺的呈現，更是生活態度的總和。</p>
+                        <ul class="space-y-4 pt-4">
+                            <li class="flex items-center space-x-3">
+                                <span class="w-1.5 h-1.5 rounded-full bg-champagne"></span>
+                                <span>30+ 年國際精品選品經驗</span>
+                            </li>
+                            <li class="flex items-center space-x-3">
+                                <span class="w-1.5 h-1.5 rounded-full bg-champagne"></span>
+                                <span>高端珠寶設計與客製化規劃</span>
+                            </li>
+                            <li class="flex items-center space-x-3">
+                                <span class="w-1.5 h-1.5 rounded-full bg-champagne"></span>
+                                <span>品牌形象經營與顧問服務</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="services" class="py-32 relative">
+        <div class="container mx-auto px-6 lg:px-20">
+            <div class="text-center mb-20 reveal">
+                <h2 class="font-serif text-4xl md:text-5xl text-luxury-black mb-4">精品服務展櫃</h2>
+                <div class="w-20 h-px bg-champagne mx-auto"></div>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Service 1 -->
+                <div class="glass-card p-10 reveal">
+                    <div class="text-champagne mb-6">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/></svg>
+                    </div>
+                    <h3 class="font-serif text-xl mb-4 text-luxury-black">精品服飾選品</h3>
+                    <p class="text-gray-500 text-sm font-light leading-relaxed">橫跨國際時尚週，為您挑選兼具經典與當代美學的頂級服飾精品。</p>
+                </div>
+
+                <!-- Service 2 -->
+                <div class="glass-card p-10 reveal" style="transition-delay: 0.1s;">
+                    <div class="text-champagne mb-6">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M12 3l9 7-9 7-9-7 9-7z"/><path d="M12 21l-9-7 9 7 9-7-9 7z"/></svg>
+                    </div>
+                    <h3 class="font-serif text-xl mb-4 text-luxury-black">珠寶客製設計</h3>
+                    <p class="text-gray-500 text-sm font-light leading-relaxed">從原石選取到金工設計，將您的生命故事轉化為可傳承的璀璨藝術品。</p>
+                </div>
+
+                <!-- Service 3 -->
+                <div class="glass-card p-10 reveal" style="transition-delay: 0.2s;">
+                    <div class="text-champagne mb-6">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+                    </div>
+                    <h3 class="font-serif text-xl mb-4 text-luxury-black">精品採購顧問</h3>
+                    <p class="text-gray-500 text-sm font-light leading-relaxed">利用 30 年全球供應網絡，為您尋求極稀缺的精品包袋與時尚藏品。</p>
+                </div>
+
+                <!-- Service 4 -->
+                <div class="glass-card p-10 reveal" style="transition-delay: 0.3s;">
+                    <div class="text-champagne mb-6">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </div>
+                    <h3 class="font-serif text-xl mb-4 text-luxury-black">形象美學顧問</h3>
+                    <p class="text-gray-500 text-sm font-light leading-relaxed">深度的品味重塑，為高端社交場合提供精準的服裝與珠寶搭配方案。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-32 bg-luxury-black text-ivory">
+        <div class="container mx-auto px-6 lg:px-20">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-16 reveal">
+                <div>
+                    <p class="text-champagne tracking-[0.3em] uppercase text-xs mb-4">Portfolio Gallery</p>
+                    <h2 class="font-serif text-4xl md:text-5xl">實戰案例</h2>
+                </div>
+                <p class="text-gray-400 mt-6 md:mt-0 max-w-sm font-light italic">
+                    每一件作品，都是對極致品味的深刻實踐。
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="group relative overflow-hidden aspect-[3/4] reveal">
+                    <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&q=80&w=800" class="w-full h-full object-cover transition duration-700 group-hover:scale-110 group-hover:opacity-50">
+                    <div class="absolute inset-0 p-8 flex flex-col justify-end translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                        <p class="text-champagne text-xs tracking-widest mb-2">Jewelry Design</p>
+                        <h4 class="font-serif text-2xl">翡翠高定系列</h4>
+                    </div>
+                </div>
+                <div class="group relative overflow-hidden aspect-[3/4] reveal" style="transition-delay: 0.1s;">
+                    <img src="https://images.unsplash.com/photo-1445205170230-053b830c6050?auto=format&fit=crop&q=80&w=800" class="w-full h-full object-cover transition duration-700 group-hover:scale-110 group-hover:opacity-50">
+                    <div class="absolute inset-0 p-8 flex flex-col justify-end translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                        <p class="text-champagne text-xs tracking-widest mb-2">Fashion Buying</p>
+                        <h4 class="font-serif text-2xl">私人精品買手專案</h4>
+                    </div>
+                </div>
+                <div class="group relative overflow-hidden aspect-[3/4] reveal" style="transition-delay: 0.2s;">
+                    <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&q=80&w=800" class="w-full h-full object-cover transition duration-700 group-hover:scale-110 group-hover:opacity-50">
+                    <div class="absolute inset-0 p-8 flex flex-col justify-end translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                        <p class="text-champagne text-xs tracking-widest mb-2">Brand Strategy</p>
+                        <h4 class="font-serif text-2xl">旗艦店形象規劃</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="core-products" class="py-32 bg-ivory">
+        <div class="container mx-auto px-6 lg:px-20">
+            <div class="text-center mb-16 reveal">
+                <h2 class="font-serif text-4xl md:text-5xl text-luxury-black mb-4">核心產品</h2>
+                <div class="w-20 h-px bg-champagne mx-auto"></div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="glass-card p-10 reveal">
+                    <div class="text-champagne mb-6 text-4xl">
+                        <i class="fa-solid fa-tshirt"></i>
+                    </div>
+                    <h3 class="font-serif text-xl mb-4 text-luxury-black">精品服飾選品</h3>
+                    <p class="text-gray-500 text-sm font-light leading-relaxed">專營歐洲義大利精品品牌。</p>
+                </div>
+                <div class="glass-card p-10 reveal" style="transition-delay: 0.1s;">
+                    <div class="text-champagne mb-6 text-4xl">
+                        <i class="fa-solid fa-gem"></i>
+                    </div>
+                    <h3 class="font-serif text-xl mb-4 text-luxury-black">珠寶客製設計</h3>
+                    <p class="text-gray-500 text-sm font-light leading-relaxed">珠寶客製設計描述。</p>
+                </div>
+                <div class="glass-card p-10 reveal" style="transition-delay: 0.2s;">
+                    <div class="text-champagne mb-6 text-4xl">
+                        <i class="fa-solid fa-plane"></i>
+                    </div>
+                    <h3 class="font-serif text-xl mb-4 text-luxury-black">歐洲國外品牌系列代購</h3>
+                    <p class="text-gray-500 text-sm font-light leading-relaxed">歐洲國外品牌系列描述。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="py-40 relative overflow-hidden">
+        <div class="soft-bloom absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96"></div>
+        <div class="container mx-auto px-6 text-center reveal">
+            <h2 class="font-serif text-4xl md:text-6xl text-luxury-black mb-8 leading-tight">
+                啟程，<span class="italic font-light">定義您的奢華語彙</span>
+            </h2>
+            <p class="text-gray-500 max-w-xl mx-auto mb-12 font-light text-lg italic">
+                誠摯邀請您進行初步諮詢，開啟專屬您的精品美學之旅。
+            </p>
+            
+            <a href="https://calendar.app.google/Rinxau1cWR4TBg418" target="_blank"
+               class="shimmer-btn relative inline-block px-12 py-6 border border-champagne text-luxury-black font-semibold tracking-[0.3em] uppercase text-sm rounded-sm transition-all hover:bg-white hover:shadow-xl group overflow-hidden">
+                <span class="relative z-10 group-hover:text-champagne transition-colors">立即預約 1:1 諮詢</span>
+                <div class="absolute inset-0 bg-white scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
+            </a>
+
+            <div class="mt-20 flex justify-center space-x-10 text-gray-400">
+                <a href="#" class="hover:text-champagne transition-colors uppercase tracking-widest text-xs">Instagram</a>
+                <a href="#" class="hover:text-champagne transition-colors uppercase tracking-widest text-xs">LinkedIn</a>
+                <a href="#" class="hover:text-champagne transition-colors uppercase tracking-widest text-xs">WhatsApp</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-10 border-t border-gray-100">
+        <div class="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-[10px] text-gray-400 tracking-[0.2em] uppercase">
+            <p>© 2024 SANDY HUANG. ALL RIGHTS RESERVED.</p>
+            <p class="mt-4 md:mt-0">Crafted for Luxury Excellence</p>
+        </div>
+    </footer>
+
+    <script>
+        /* --- 粒子系統 (Luxury Dust Particles) --- */
+        const canvas = document.getElementById('luxury-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.3;
+                this.speedY = (Math.random() - 0.5) * 0.3;
+                this.opacity = Math.random() * 0.5 + 0.1;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+                    this.reset();
+                }
+            }
+            draw() {
+                ctx.fillStyle = `rgba(243, 183, 193, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < 50; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        /* --- 聚光燈效果 (Spotlight Follow) --- */
+        const spotlight = document.getElementById('spotlight');
+        document.addEventListener('mousemove', (e) => {
+            spotlight.style.left = `${e.clientX}px`;
+            spotlight.style.top = `${e.clientY}px`;
+        });
+
+        /* --- Scroll Reveal 動效 --- */
+        function reveal() {
+            const reveals = document.querySelectorAll('.reveal');
+            reveals.forEach(el => {
+                const windowHeight = window.innerHeight;
+                const elementTop = el.getBoundingClientRect().top;
+                const elementVisible = 150;
+                if (elementTop < windowHeight - elementVisible) {
+                    el.classList.add('active');
+                }
+            });
+        }
+
+        /* --- Navbar 滑動變色 --- */
+        function scrollNavbar() {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                nav.classList.add('bg-pearl/90', 'backdrop-blur-md', 'shadow-sm', 'py-4');
+                nav.classList.remove('py-6');
+            } else {
+                nav.classList.remove('bg-pearl/90', 'backdrop-blur-md', 'shadow-sm', 'py-4');
+                nav.classList.add('py-6');
+            }
+        }
+
+        window.addEventListener('scroll', () => {
+            reveal();
+            scrollNavbar();
+        });
+
+        window.onload = () => {
+            resize();
+            initParticles();
+            animate();
+            reveal(); // 初始檢查一次
+        };
+
+        window.addEventListener('resize', resize);
+
+        // 平滑滾動
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
